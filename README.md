@@ -11,7 +11,14 @@ A Model Context Protocol (MCP) server for extracting and analyzing JavaScript Ac
 │   ├── core/              # Core PDF processing
 │   ├── config/            # Configuration management
 │   └── utils/             # Utility functions
-└── examples/              # Sample PDFs for testing
+├── examples/              # Sample PDFs for testing
+├── docs/                  # Documentation
+│   ├── INSTALLATION_GUIDE.md
+│   ├── RELEASE_NOTES_v0.1.0.md
+│   └── README.md          # Documentation index
+├── requirements.txt       # Dependencies
+├── pyproject.toml        # Package configuration
+└── CHANGELOG.md          # Version history
 ```
 
 ## Setup
