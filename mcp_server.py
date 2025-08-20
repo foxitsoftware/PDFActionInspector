@@ -355,9 +355,14 @@ def get_cache_status() -> str:
         return f"Failed to get cache status: {str(e)}"
 
 
-if __name__ == "__main__":
+def main():
+    """Main entry point for console script"""
     # Set environment variables (if needed)
     if "PDF_CACHE_TIMEOUT_SECONDS" not in os.environ:
         os.environ["PDF_CACHE_TIMEOUT_SECONDS"] = "120"  # 120 seconds default timeout
     
     mcp.run()
+
+
+if __name__ == "__main__":
+    main()

@@ -52,6 +52,30 @@ python mcp_server.py
 - `PDF_CACHE_TIMEOUT_SECONDS=120` - Cache timeout
 - `LOG_LEVEL=INFO` - Log level
 
+## Installation from PyPI
+
+```bash
+# Install from PyPI (when published)
+pip install pdf-action-inspector
+
+# Run as console script
+pdf-action-inspector
+```
+
+## Development Setup
+
+```bash
+# Clone repository
+git clone https://github.com/foxitsoftware/PDFActionInspector.git
+cd PDFActionInspector
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run development server
+python mcp_server.py
+```
+
 ## Example Analysis
 
 Here are examples of analyzing different types of PDFs using the MCP server in VS Code with GitHub Copilot:

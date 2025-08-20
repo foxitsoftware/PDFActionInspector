@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pdf-action-inspector"
+version = "0.1.0"
+authors = [
+    {name = "Foxit Software Inc.", email = "security-ml@foxitsoftware.com"},
+]
+description = "A Model Context Protocol server for extracting and analyzing JavaScript Actions from PDF files"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.8"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "Topic :: Security",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Text Processing :: General",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+]
+keywords = ["pdf", "security", "analysis", "javascript", "actions", "mcp", "model-context-protocol"]
+dependencies = [
+    "PyPDF2>=3.0.0",
+    "fastmcp>=2.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/foxitsoftware/PDFActionInspector"
+Repository = "https://github.com/foxitsoftware/PDFActionInspector"
+Issues = "https://github.com/foxitsoftware/PDFActionInspector/issues"
+Documentation = "https://github.com/foxitsoftware/PDFActionInspector#readme"
+
+[project.scripts]
+pdf-action-inspector = "mcp_server:main"
+
+[tool.setuptools]
+packages = ["src", "src.config", "src.core", "src.utils"]
+
+[tool.setuptools.package-data]
+"*" = ["*.md", "*.txt", "*.yml", "*.yaml"]

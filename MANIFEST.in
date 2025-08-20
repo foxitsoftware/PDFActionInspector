@@ -1,0 +1,27 @@
+# MANIFEST.in for PDF Action Inspector
+
+# Include essential files
+include README.md
+include LICENSE
+include CHANGELOG.md
+include requirements.txt
+include pyproject.toml
+
+# Include example files
+recursive-include examples *.pdf *.md *.txt
+
+# Include source code
+recursive-include src *.py
+
+# Include configuration files
+include *.py
+include *.yml
+include *.yaml
+
+# Exclude unnecessary files
+exclude *.pyc
+exclude .gitignore
+exclude .git*
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]
+recursive-exclude * .DS_Store

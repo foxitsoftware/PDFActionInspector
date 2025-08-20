@@ -4,6 +4,12 @@
 PyPDF2>=3.0.0
 fastmcp>=2.0.0
 
+# Build dependencies (for package development)
+# build>=0.8.0
+# twine>=4.0.0
+# setuptools>=61.0
+# wheel>=0.37.0
+
 # Development dependencies (optional)
 # pytest>=7.0.0
 # black>=22.0.0
