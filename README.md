@@ -17,7 +17,13 @@ A Model Context Protocol (MCP) server for extracting and analyzing JavaScript Ac
 ## Setup
 
 ```bash
+# Install dependencies
+pip install -r requirements.txt
+
+# Or install manually
 pip install PyPDF2 fastmcp
+
+# Run the server
 python mcp_server.py
 ```
 
