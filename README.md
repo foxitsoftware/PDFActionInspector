@@ -9,16 +9,30 @@ A Model Context Protocol (MCP) server for extracting and analyzing JavaScript Ac
 ├── start.py               # Server startup script
 ├── src/
 │   ├── core/              # Core PDF processing
+│   │   ├── inspector.py
+│   │   ├── cache_manager.py
+│   │   └── error_handler.py
 │   ├── config/            # Configuration management
+│   │   ├── settings.py
+│   │   └── policies.py
 │   └── utils/             # Utility functions
-├── examples/              # Sample PDFs for testing
+│       ├── action_extractor.py
+│       └── pdf_utils.py
+├── examples/
+│   └── pdf_samples/       # Sample PDFs for testing
 ├── docs/                  # Documentation
 │   ├── INSTALLATION_GUIDE.md
 │   ├── RELEASE_NOTES_v0.1.0.md
+│   ├── RELEASE_FILES_INFO.md
+│   ├── PYPI_PUBLISHING_GUIDE.md
 │   └── README.md          # Documentation index
 ├── requirements.txt       # Dependencies
 ├── pyproject.toml        # Package configuration
-└── CHANGELOG.md          # Version history
+├── setup.py              # Setup script
+├── MANIFEST.in           # Package manifest
+├── CHANGELOG.md          # Version history
+├── LICENSE               # MIT License
+└── .gitignore            # Git ignore rules
 ```
 
 ## Setup
