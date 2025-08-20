@@ -52,6 +52,13 @@ python mcp_server.py
 - `PDF_CACHE_TIMEOUT_SECONDS=120` - Cache timeout
 - `LOG_LEVEL=INFO` - Log level
 
+## 📚 Documentation
+
+- **[Installation Guide](docs/INSTALLATION_GUIDE.md)** - Download and install instructions
+- **[Release Notes](docs/RELEASE_NOTES_v0.1.0.md)** - Latest release information
+- **[Release Files Info](docs/RELEASE_FILES_INFO.md)** - Package format details
+- **[Documentation Index](docs/README.md)** - Complete documentation overview
+
 ## Installation from PyPI
 
 ```bash
