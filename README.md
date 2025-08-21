@@ -304,4 +304,21 @@ Here are examples of analyzing different types of PDFs using the MCP server in V
 - Suitable for use in high-security environments
 ```
 
-These examples show how the tool handles different scenarios: malicious code, suspicious behavior, and clean documents.
+### Example 4: Financial Document Price Manipulation
+
+📹 **[Video Demo: Analyzing PDF Price Manipulation Attack](examples/videos/price-manipulation-demo.mp4)**
+
+Watch how our AI agent detects a malicious signature field that secretly changes a price from $1000 to $100 when the user attempts to sign the document.
+
+These examples demonstrate how the tool handles different scenarios: malicious code, suspicious behavior, and clean documents.
+
+## ⚠️ Important Disclaimer
+
+This project provides **a PDF security analysis framework** that surfaces all embedded PDF Actions and supports AI-assisted risk assessment. It integrates with security workflows as an MCP server module. 
+
+**We make no guarantees about the accuracy of specific analysis results.** This tool provides a methodology and framework for using AI to analyze PDF Actions security. The output results depend heavily on the AI model and agent application you choose to use. Users should validate findings through additional security measures and expert review.
+
+### What This Framework Provides:
+- **Comprehensive data extraction** for PDF Actions across all document levels
+- **MCP server integration** for AI security analysis workflows  
+- **Structured approach** to surface hidden PDF behaviors for security assessment
