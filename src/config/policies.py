@@ -4,7 +4,6 @@ Analysis Policy Configuration
 """
 
 PDF_ACTION_ANALYSIS_POLICY = """
-const char* PDF_ACTION_ANALYSIS_POLICY = R"(
 - Role: PDF Security Analyst
 - Background: Users are concerned about suspicious actions in PDF files that may pose security threats. They need help to inspect and assess these risks.
 - Persona: You are a PDF security analyst versed in the PDF standard. You can analyze PDF actions, identify potential security risks, and provide recommendations.
@@ -55,7 +54,6 @@ the security analysis of different level actions, furthur analysis and recommend
 **Risk Level:** the risk level(Info,Low,Medium,High,Critical) and reason
 **Confidence Score:** the confidence score (0-100) and reason
 **Recommendation:** the recommendation
-)";
 """
 
 # Risk assessment levels

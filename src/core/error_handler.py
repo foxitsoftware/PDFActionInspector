@@ -62,6 +62,24 @@ class ErrorHandler:
         
         return json.dumps(error_response, ensure_ascii=False, indent=2)
     
+    def create_error_dict(
+        self, 
+        error_type: PDFErrorType, 
+        message: str, 
+        file_path: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """Create standardized error response as dict"""
+        error_response = {
+            "success": False,
+            "error_type": error_type.value,
+            "error_message": message,
+        }
+        
+        if file_path:
+            error_response["file_path"] = file_path
+        
+        return error_response
+    
     def handle_file_error(self, file_path: str, original_error: Exception) -> str:
         """Handle file-related errors"""
         if isinstance(original_error, FileNotFoundError):
@@ -116,6 +134,63 @@ class ErrorHandler:
             return self.create_error_response(
                 PDFErrorType.PROCESSING_ERROR,
                 f"PDF processing error: {str(original_error)}",
+                file_path
+            )
+    
+    def handle_pdf_error_dict(self, file_path: str, original_error: Exception) -> Dict[str, Any]:
+        """Handle PDF-related errors and return dict"""
+        error_msg = str(original_error).lower()
+        
+        if "password" in error_msg or "decrypt" in error_msg:
+            if "wrong password" in error_msg or "invalid password" in error_msg:
+                return self.create_error_dict(
+                    PDFErrorType.ENCRYPTION_INVALID_PASSWORD,
+                    "Provided password is incorrect",
+                    file_path
+                )
+            else:
+                return self.create_error_dict(
+                    PDFErrorType.ENCRYPTION_PASSWORD_REQUIRED,
+                    "PDF document is encrypted, correct password required",
+                    file_path
+                )
+        elif "invalid pdf" in error_msg or "not a pdf" in error_msg:
+            return self.create_error_dict(
+                PDFErrorType.INVALID_PDF_FORMAT,
+                "File format is not a valid PDF",
+                file_path
+            )
+        elif "corrupted" in error_msg or "damaged" in error_msg:
+            return self.create_error_dict(
+                PDFErrorType.CORRUPTED_DOCUMENT,
+                "PDF document is corrupted or has structural anomalies",
+                file_path
+            )
+        else:
+            return self.create_error_dict(
+                PDFErrorType.PROCESSING_ERROR,
+                f"PDF processing error: {str(original_error)}",
+                file_path
+            )
+            
+    def handle_file_error_dict(self, file_path: str, original_error: Exception) -> Dict[str, Any]:
+        """Handle file-related errors and return dict"""
+        if isinstance(original_error, FileNotFoundError):
+            return self.create_error_dict(
+                PDFErrorType.FILE_NOT_FOUND,
+                f"File does not exist: {file_path}",
+                file_path
+            )
+        elif isinstance(original_error, PermissionError):
+            return self.create_error_dict(
+                PDFErrorType.PERMISSION_DENIED,
+                f"Insufficient file permissions: {file_path}",
+                file_path
+            )
+        else:
+            return self.create_error_dict(
+                PDFErrorType.PROCESSING_ERROR,
+                f"File processing error: {str(original_error)}",
                 file_path
             )
     

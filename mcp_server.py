@@ -85,7 +85,8 @@ def extract_pdf_actions(file_path: str) -> str:
         - This method only extracts data, does not perform any analysis
         - Returns raw PDF Actions structure
     """
-    return pdf_inspector.extract_pdf_actions(file_path)
+    result = pdf_inspector.extract_pdf_actions(file_path)
+    return json.dumps(result, ensure_ascii=False, indent=2)
 
 
 @mcp.tool()
@@ -114,7 +115,8 @@ def get_document_overview(file_path: str) -> str:
         - Returns JSON format string, needs parsing after use
         - Contains security-related feature statistics of document
     """
-    return pdf_inspector.get_document_overview(file_path)
+    result = pdf_inspector.get_document_overview(file_path)
+    return json.dumps(result, ensure_ascii=False, indent=2)
 
 
 @mcp.tool()
@@ -179,7 +181,8 @@ def get_page_text_content(file_path: str, page_number: int = 0) -> str:
         - Text from some PDFs may not be extracted correctly (such as scanned PDFs)
         - Returned text maintains original format and line breaks
     """
-    return pdf_inspector.get_page_text_content(file_path, page_number)
+    result = pdf_inspector.get_page_text_content(file_path, page_number)
+    return json.dumps(result, ensure_ascii=False, indent=2)
 
 
 @mcp.tool()
@@ -214,7 +217,8 @@ def get_trailer_object(file_path: str) -> str:
         - Encryption information is important for security analysis
         - Some object references may need further parsing
     """
-    return pdf_inspector.get_trailer_object(file_path)
+    result = pdf_inspector.get_trailer_object(file_path)
+    return json.dumps(result, ensure_ascii=False, indent=2)
 
 
 @mcp.tool()
@@ -242,7 +246,8 @@ def get_fields_by_name(file_path: str, field_name: str) -> str:
         for field in data['found_fields']:
             print(f"Field: {field['name']}, Type: {field['type']}")
     """
-    return pdf_inspector.get_fields_by_name(file_path, field_name)
+    result = pdf_inspector.get_fields_by_name(file_path, field_name)
+    return json.dumps(result, ensure_ascii=False, indent=2)
 
 
 @mcp.tool()
@@ -269,7 +274,8 @@ def get_pdf_object_information(file_path: str, object_number: int) -> str:
         if data['found']:
             print(f"Object type: {data['object_info']['type']}")
     """
-    return pdf_inspector.get_pdf_object_information(file_path, object_number)
+    result = pdf_inspector.get_pdf_object_information(file_path, object_number)
+    return json.dumps(result, ensure_ascii=False, indent=2)
 
 
 # Advanced analysis tools
@@ -353,6 +359,46 @@ def get_cache_status() -> str:
         return json.dumps(status, ensure_ascii=False, indent=2)
     except Exception as e:
         return f"Failed to get cache status: {str(e)}"
+
+
+@mcp.tool()
+def set_pdf_password(file_path: str, password: str) -> str:
+    """
+    Set and verify password for encrypted PDF file
+    
+    Store password for specific PDF file and immediately verify it works
+    by attempting to open the PDF. This allows processing of encrypted PDFs
+    by providing the correct password.
+    
+    Args:
+        file_path: Absolute or relative path to the PDF file
+        password: Password for the encrypted PDF file
+        
+    Returns:
+        Success message if password is correct, error message if incorrect
+        
+    Example:
+        set_pdf_password("encrypted.pdf", "mypassword123")
+        
+    Note:
+        - Password is verified immediately by attempting to open the PDF
+        - Only correct passwords are stored in memory for the current session
+        - If password is incorrect, an error is returned and password is not stored
+        - Successful password will be used automatically for subsequent operations
+    """
+    try:
+        cache_manager.set_password(file_path, password)
+        return json.dumps({
+            "success": True,
+            "message": f"Password verified and set for file: {file_path}",
+            "file_path": file_path
+        }, ensure_ascii=False, indent=2)
+    except Exception as e:
+        return json.dumps({
+            "success": False,
+            "error": f"Failed to set password: {str(e)}",
+            "file_path": file_path
+        }, ensure_ascii=False, indent=2)
 
 
 def main():

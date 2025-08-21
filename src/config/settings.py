@@ -24,11 +24,6 @@ class Settings:
         # Log configuration
         self.log_level = os.getenv('LOG_LEVEL', 'INFO').upper()
         
-        # Password attempt configuration
-        self.common_passwords = [
-            "", "password", "123456", "admin", "user", "123", "000000"
-        ]
-        
         # File size limit (MB)
         self.max_file_size_mb = int(os.getenv('MAX_PDF_FILE_SIZE_MB', '100'))
         

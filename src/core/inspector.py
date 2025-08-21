@@ -32,7 +32,7 @@ class PDFActionInspector:
         self.logger.info("PDFActionInspector initialization complete")
     
     def analyze_pdf_actions_security(self, file_path: str, password: Optional[str] = None) -> str:
-        """Generate PDF Actions security analysis prompt, containing policy and data"""
+        """Generate comprehensive PDF security analysis prompt with action guidance"""
         try:
             reader = self.cache_manager.get_reader(file_path, password)
             
@@ -42,30 +42,95 @@ class PDFActionInspector:
             # Extract all Actions data
             all_actions = action_extractor.extract_all_actions(reader)
             
-            # Generate analysis prompt
+            # Generate enhanced analysis prompt
             prompt = f"""# PDF Security Analysis Task
 
+## CRITICAL ANALYSIS INSTRUCTIONS
+
+**BEFORE making any conclusions, you MUST:**
+
+1. **Information Gathering Phase**:
+   - Use functions to retrieve required information, if needed.
+
+2. **Deep Investigation Strategy**:
+   - **DO NOT** make assumptions about field values or document content
+   - **ALWAYS** verify field information using available tools before analysis
+   - **PRIORITIZE** understanding the complete attack chain
+   - **EXAMINE** all JavaScript code for hidden functionality
+
+3. **Security Focus Areas**:
+   - Hidden value modifications (changing prices, amounts, etc.)
+   - Form field manipulations that bypass user awareness
+   - Suspicious timing of actions (on signature, on focus, etc.)
+   - Data exfiltration attempts or external communications
+
 ## Analysis Strategy
+
+```
 {self.policy_text}
+```
 
-## Document basic information
-- Filename: {basic_info.get('filename', 'Unknown')}
-- Pages: {basic_info.get('pages', 0)}
-- Encrypted: {basic_info.get('encrypted', False)}
-- PDF Version: {basic_info.get('pdf_version', 'Unknown')}
-- File Size: {self._get_file_size(file_path)} bytes
+## Document Basic Information
+- **Filename**: {basic_info.get('filename', 'Unknown')}
+- **Pages**: {basic_info.get('pages', 0)}
+- **Encrypted**: {basic_info.get('encrypted', False)}
+- **PDF Version**: {basic_info.get('pdf_version', 'Unknown')}
+- **File Size**: {self._get_file_size(file_path)} bytes
 
-## Extracted Actions data
+## Initial Actions Data
+
 ```json
 {json.dumps(all_actions, ensure_ascii=False, indent=2)}
 ```
 
-## Analysis requirements
-Please conduct a professional PDF security analysis of the Extracted Actions data based on the above strategy, focusing on:
-1. Maliciousness assessment of JavaScript code
-2. Risk analysis of Action triggering timing
-3. Identification of potential attack vectors
-4. Overall security risk level assessment
+## Required Analysis Steps
+
+**Step 1: Information Collection**
+- Identify all field names mentioned in JavaScript
+- Use tools to get current field values and properties
+- Check for any suspicious objects or references
+
+**Step 2: Behavioral Analysis**
+- Map out the complete action flow
+- Identify what happens when user interacts with the document
+- Determine if actions modify important data (prices, agreements, etc.)
+
+**Step 3: Security Assessment**
+- Evaluate potential financial/legal impact
+- Assess user deception level
+- Determine attack sophistication
+
+**Step 4: Risk Rating**
+- Provide specific benign level (Benign/Misuse/Abuse/Malicious)
+- Assign risk level (Info/Low/Medium/High/Critical) 
+- Give confidence score (0-100) with reasoning
+
+## Expected Output Format
+
+```
+# Security Analysis Report
+
+## Information Gathering Results
+[Document your tool usage and findings]
+
+## Actions Summary  
+[Summary of all detected actions and triggers]
+
+## Behavioral Analysis
+[Detailed analysis of what the actions actually do]
+
+## Security Impact Assessment
+[Specific security implications and attack vectors]
+
+## Risk Assessment
+- **Scenario**: [Brief description]
+- **Benign Level**: [Level] - [Reasoning]
+- **Risk Level**: [Level] - [Reasoning] 
+- **Confidence**: [Score]% - [Reasoning]
+- **Recommendation**: [Specific actions to take]
+```
+
+**START your analysis by using the appropriate tools to gather more information about this document.**
 """
             
             return prompt
@@ -77,7 +142,7 @@ Please conduct a professional PDF security analysis of the Extracted Actions dat
             self.logger.error(f"Failed to generate analysis prompt: {e}")
             return self.error_handler.handle_pdf_error(file_path, e)
     
-    def extract_pdf_actions(self, file_path: str, password: Optional[str] = None) -> str:
+    def extract_pdf_actions(self, file_path: str, password: Optional[str] = None) -> Dict[str, Any]:
         """Pure PDF Actions data extraction, no analysis"""
         try:
             reader = self.cache_manager.get_reader(file_path, password)
@@ -85,16 +150,16 @@ Please conduct a professional PDF security analysis of the Extracted Actions dat
             # Extract all Actions - return complete structured data
             all_actions = action_extractor.extract_all_actions(reader)
             
-            return json.dumps(all_actions, ensure_ascii=False, indent=2)
+            return all_actions
             
         except PDFProcessingError as e:
             self.logger.error(f"PDF processing error: {e}")
-            return self.error_handler.create_error_response(e.error_type, e.message, file_path)
+            return self.error_handler.create_error_dict(e.error_type, e.message, file_path)
         except Exception as e:
             self.logger.error(f"Failed to extract PDF Actions: {e}")
-            return self.error_handler.handle_pdf_error(file_path, e)
+            return self.error_handler.handle_pdf_error_dict(file_path, e)
     
-    def get_document_overview(self, file_path: str, password: Optional[str] = None) -> str:
+    def get_document_overview(self, file_path: str, password: Optional[str] = None) -> Dict[str, Any]:
         """Get PDF document overview"""
         try:
             reader = self.cache_manager.get_reader(file_path, password)
@@ -135,24 +200,24 @@ Please conduct a professional PDF security analysis of the Extracted Actions dat
                 }
             }
             
-            return json.dumps(overview, ensure_ascii=False, indent=2)
+            return overview
             
         except PDFProcessingError as e:
-            return self.error_handler.create_error_response(e.error_type, e.message, file_path)
+            return self.error_handler.create_error_dict(e.error_type, e.message, file_path)
         except Exception as e:
-            return self.error_handler.handle_pdf_error(file_path, e)
+            return self.error_handler.handle_pdf_error_dict(file_path, e)
     
-    def get_page_text_content(self, file_path: str, page_number: int = 0, password: Optional[str] = None) -> str:
+    def get_page_text_content(self, file_path: str, page_number: int = 0, password: Optional[str] = None) -> Dict[str, Any]:
         """Get page text content"""
         try:
             reader = self.cache_manager.get_reader(file_path, password)
             result = pdf_utils.extract_text_from_page(reader, page_number)
-            return json.dumps(result, ensure_ascii=False, indent=2)
+            return result
             
         except PDFProcessingError as e:
-            return self.error_handler.create_error_response(e.error_type, e.message, file_path)
+            return self.error_handler.create_error_dict(e.error_type, e.message, file_path)
         except Exception as e:
-            return self.error_handler.handle_pdf_error(file_path, e)
+            return self.error_handler.handle_pdf_error_dict(file_path, e)
     
     def load_all_annotations(self, file_path: str, password: Optional[str] = None) -> str:
         """Load all annotations"""
@@ -166,41 +231,41 @@ Please conduct a professional PDF security analysis of the Extracted Actions dat
         except Exception as e:
             return self.error_handler.handle_pdf_error(file_path, e)
     
-    def get_trailer_object(self, file_path: str, password: Optional[str] = None) -> str:
+    def get_trailer_object(self, file_path: str, password: Optional[str] = None) -> Dict[str, Any]:
         """Get Trailer object"""
         try:
             reader = self.cache_manager.get_reader(file_path, password)
             result = pdf_utils.parse_trailer_object(reader)
-            return json.dumps(result, ensure_ascii=False, indent=2)
+            return result
             
         except PDFProcessingError as e:
-            return self.error_handler.create_error_response(e.error_type, e.message, file_path)
+            return self.error_handler.create_error_dict(e.error_type, e.message, file_path)
         except Exception as e:
-            return self.error_handler.handle_pdf_error(file_path, e)
+            return self.error_handler.handle_pdf_error_dict(file_path, e)
     
-    def get_fields_by_name(self, file_path: str, field_name: str, password: Optional[str] = None) -> str:
+    def get_fields_by_name(self, file_path: str, field_name: str, password: Optional[str] = None) -> Dict[str, Any]:
         """Find fields by name"""
         try:
             reader = self.cache_manager.get_reader(file_path, password)
             result = pdf_utils.find_form_fields_by_name(reader, field_name)
-            return json.dumps(result, ensure_ascii=False, indent=2)
+            return result
             
         except PDFProcessingError as e:
-            return self.error_handler.create_error_response(e.error_type, e.message, file_path)
+            return self.error_handler.create_error_dict(e.error_type, e.message, file_path)
         except Exception as e:
-            return self.error_handler.handle_pdf_error(file_path, e)
+            return self.error_handler.handle_pdf_error_dict(file_path, e)
     
-    def get_pdf_object_information(self, file_path: str, object_number: int, password: Optional[str] = None) -> str:
+    def get_pdf_object_information(self, file_path: str, object_number: int, password: Optional[str] = None) -> Dict[str, Any]:
         """Get PDF object information"""
         try:
             reader = self.cache_manager.get_reader(file_path, password)
             result = pdf_utils.get_pdf_object_info(reader, object_number)
-            return json.dumps(result, ensure_ascii=False, indent=2)
+            return result
             
         except PDFProcessingError as e:
-            return self.error_handler.create_error_response(e.error_type, e.message, file_path)
+            return self.error_handler.create_error_dict(e.error_type, e.message, file_path)
         except Exception as e:
-            return self.error_handler.handle_pdf_error(file_path, e)
+            return self.error_handler.handle_pdf_error_dict(file_path, e)
     
     def load_all_annotations_in_page(self, file_path: str, page_index: int, password: Optional[str] = None) -> str:
         """Load annotations from specified page"""

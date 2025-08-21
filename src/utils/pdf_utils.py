@@ -23,6 +23,24 @@ class PDFUtils:
     def __init__(self):
         self.logger = logging.getLogger(__name__)
     
+    def dereference_object(self, obj):
+        """
+        Safely dereference an IndirectObject to get the actual object.
+        
+        Args:
+            obj: Any object that might be an IndirectObject
+            
+        Returns:
+            The dereferenced object, or the original object if it's not an IndirectObject
+        """
+        if isinstance(obj, IndirectObject):
+            try:
+                return obj.get_object()
+            except Exception as e:
+                self.logger.warning(f"Failed to dereference IndirectObject: {e}")
+                return None
+        return obj
+    
     def get_document_basic_info(self, reader: PdfReader, file_path: str) -> Dict[str, Any]:
         """Get document basic information"""
         try:
@@ -90,12 +108,15 @@ class PDFUtils:
                 safe_trailer = {}
                 for key, value in trailer.items():
                     try:
-                        if isinstance(value, (str, int, float, bool)):
-                            safe_trailer[str(key)] = value
+                        # Dereference if it's an IndirectObject
+                        dereferenced_value = self.dereference_object(value)
+                        
+                        if isinstance(dereferenced_value, (str, int, float, bool)):
+                            safe_trailer[str(key)] = dereferenced_value
                         elif isinstance(value, IndirectObject):
                             safe_trailer[str(key)] = f"IndirectObject({value.idnum}, {value.generation})"
                         else:
-                            safe_trailer[str(key)] = str(type(value).__name__)
+                            safe_trailer[str(key)] = str(type(dereferenced_value).__name__)
                     except:
                         safe_trailer[str(key)] = "UnparsableValue"
                 
@@ -117,7 +138,9 @@ class PDFUtils:
             }
             
             # Check if there are forms
-            if "/AcroForm" not in reader.trailer.get("/Root", {}):
+            root_obj = self.dereference_object(reader.trailer.get("/Root", {}))
+            
+            if not isinstance(root_obj, DictionaryObject) or "/AcroForm" not in root_obj:
                 return result
             
             # Recursively search fields
@@ -126,23 +149,25 @@ class PDFUtils:
                     return
                 
                 for field in fields:
-                    if isinstance(field, IndirectObject):
-                        field = field.get_object()
+                    field = self.dereference_object(field)
                     
                     if not isinstance(field, DictionaryObject):
                         continue
                     
                     # Get field name
-                    current_name = field.get("/T", "")
-                    if isinstance(current_name, TextStringObject):
+                    current_name = self.dereference_object(field.get("/T", ""))
+                    if current_name is None:
+                        current_name = ""
+                    else:
                         current_name = str(current_name)
                     
                     full_name = f"{parent_name}.{current_name}" if parent_name else current_name
                     
-                    # Check if it matches
-                    if field_name.lower() in full_name.lower():
+                    # Check if it matches - ensure full_name is a string
+                    full_name_str = str(full_name) if not isinstance(full_name, str) else full_name
+                    if field_name.lower() in full_name_str.lower():
                         field_info = {
-                            "name": full_name,
+                            "name": full_name_str,
                             "type": str(field.get("/FT", "Unknown")),
                             "value": str(field.get("/V", "")),
                             "flags": field.get("/Ff", 0)
@@ -152,12 +177,11 @@ class PDFUtils:
                     # Recursively search child fields
                     kids = field.get("/Kids")
                     if kids:
-                        search_fields(kids, full_name)
+                        search_fields(kids, full_name_str)
             
             # Start searching
-            acro_form = reader.trailer["/Root"].get("/AcroForm")
+            acro_form = self.dereference_object(reader.trailer["/Root"].get("/AcroForm"))
             if acro_form:
-                acro_form = acro_form.get_object() if isinstance(acro_form, IndirectObject) else acro_form
                 fields = acro_form.get("/Fields", [])
                 search_fields(fields)
             

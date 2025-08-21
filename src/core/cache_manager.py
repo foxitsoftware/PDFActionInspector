@@ -162,14 +162,7 @@ class CacheManager:
             self.logger.info("Successfully decrypted with preset password")
             return
         
-        # Try common passwords
-        for common_pwd in settings.common_passwords:
-            if reader.decrypt(common_pwd):
-                self.logger.info(f"Successfully decrypted with common password: {common_pwd}")
-                self._file_passwords[file_path] = common_pwd
-                return
-        
-        # All attempts failed
+        # All attempts failed - require user to provide password
         self.error_handler.raise_pdf_error(
             PDFErrorType.ENCRYPTION_PASSWORD_REQUIRED,
             "Cannot decrypt PDF document, please provide correct password",
@@ -198,10 +191,24 @@ class CacheManager:
             return reader
     
     def set_password(self, file_path: str, password: str):
-        """Set password for file"""
+        """Set password for file and verify it works"""
         with self._lock:
-            self._file_passwords[file_path] = password
-            self.logger.info(f"File password set: {file_path}")
+            try:
+                # Test password by trying to load the PDF
+                test_reader = self._load_pdf_reader(file_path, password)
+                
+                # If successful, store the password
+                self._file_passwords[file_path] = password
+                self.logger.info(f"File password set and verified: {file_path}")
+                
+                # Also cache this successful reader
+                cache_key = self._generate_cache_key(file_path, password)
+                self._cache[cache_key] = CacheEntry(test_reader, file_path)
+                
+            except Exception as e:
+                # Don't store invalid password, re-raise the error
+                self.logger.error(f"Failed to set password for {file_path}: {str(e)}")
+                raise
     
     def clear_cache(self, file_path: Optional[str] = None):
         """Clear cache"""

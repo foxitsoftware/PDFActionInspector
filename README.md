@@ -2,6 +2,30 @@
 
 A Model Context Protocol (MCP) server for extracting and analyzing JavaScript Actions from PDF files. PDF Actions can trigger malicious scripts when documents are opened or interacted with, making this tool valuable for security analysis.
 
+## Architecture
+
+The PDF Action Inspector follows a clean three-layer architecture:
+
+### 1. Core Inspector Layer (`src/core/inspector.py`)
+- **Purpose**: Business logic and PDF processing
+- **Returns**: Python native types (dict, list) for optimal performance
+- **Responsibilities**: PDF parsing, Action extraction, data validation
+- **Dependencies**: PyPDF2, custom utilities
+
+### 2. MCP Tools Layer (`mcp_server.py`)
+- **Purpose**: Model Context Protocol interface
+- **Returns**: JSON strings for external tool consumption
+- **Responsibilities**: Input validation, error handling, JSON serialization
+- **Dependencies**: Inspector core, FastMCP framework
+
+### 3. FastMCP Framework Layer
+- **Purpose**: MCP server hosting and communication
+- **Returns**: Structured tool responses to MCP clients
+- **Responsibilities**: Network communication, protocol handling
+- **Dependencies**: FastMCP library
+
+This separation ensures clean interfaces, better testability, and optimal performance at each layer.
+
 ## Project Structure
 
 ```
@@ -20,12 +44,17 @@ A Model Context Protocol (MCP) server for extracting and analyzing JavaScript Ac
 │       └── pdf_utils.py
 ├── examples/
 │   └── pdf_samples/       # Sample PDFs for testing
+├── tests/                 # Test suite
+│   └── test_pytest.py     # Comprehensive test cases
 ├── docs/                  # Documentation
-│   ├── INSTALLATION_GUIDE.md
-│   ├── RELEASE_NOTES_v0.1.0.md
-│   ├── RELEASE_FILES_INFO.md
-│   ├── PYPI_PUBLISHING_GUIDE.md
-│   └── README.md          # Documentation index
+│   └── API_DOCUMENTATION.md  # Complete API reference
+├── requirements.txt       # Dependencies
+├── pyproject.toml        # Package configuration
+├── setup.py              # Setup script
+├── MANIFEST.in           # Package manifest
+├── CHANGELOG.md          # Version history
+├── LICENSE               # MIT License
+└── .gitignore            # Git ignore rules
 ├── requirements.txt       # Dependencies
 ├── pyproject.toml        # Package configuration
 ├── setup.py              # Setup script
@@ -63,10 +92,44 @@ python mcp_server.py
 
 ## Tools
 
-- `analyze_pdf_actions_security(file_path)` - Security analysis prompt
-- `extract_pdf_actions(file_path)` - Raw Actions data
-- `get_document_overview(file_path)` - Document info
-- `load_all_annotations(file_path)` - Annotations with Actions
+The MCP server provides the following tools for PDF analysis:
+
+### Core Analysis Tools
+- `analyze_pdf_actions_security(file_path)` - Generate security analysis prompt with extracted Actions data
+- `extract_pdf_actions(file_path)` - Extract raw PDF Actions from all levels (document, page, annotation, field)
+- `get_document_overview(file_path)` - Get comprehensive document structure and metadata
+- `load_all_annotations(file_path)` - Extract all annotations with their associated Actions
+
+### Detailed Analysis Tools  
+- `get_fields_by_name(file_path, field_name)` - Find form fields by name with fuzzy matching
+- `get_page_text_content(file_path, page_number)` - Extract text content from specific page
+- `get_pdf_object_information(file_path, object_number)` - Get detailed PDF object information
+- `get_trailer_object(file_path)` - Get PDF trailer dictionary and document structure
+- `load_all_annotations_in_page(file_path, page_index)` - Get annotations for specific page
+- `get_page_information_by_spans(file_path, page_spans)` - Get information for page ranges
+- `get_page_index_by_pdfobjnum(file_path, obj_num)` - Find page containing specific object
+
+### Cache Management
+- `set_pdf_password(file_path, password)` - Set password for encrypted PDF files
+- `clear_pdf_cache(file_path)` - Clear cache for specific file or all cached files
+- `get_cache_status()` - Get current cache status information
+
+**Architecture:** The MCP tools layer returns JSON strings for external consumption, while the internal Inspector core returns Python dictionaries for better performance and type safety.
+
+## Working with Encrypted PDFs
+
+For password-protected PDF files, you need to set the password before analyzing:
+
+```python
+# First set the password for the encrypted PDF
+set_pdf_password("encrypted_document.pdf", "your_password_here")
+
+# Then proceed with analysis
+analyze_pdf_actions_security("encrypted_document.pdf")
+extract_pdf_actions("encrypted_document.pdf")
+```
+
+**Note:** Passwords are stored in memory for the current session only and are not persisted to disk.
 
 ## Environment
 
@@ -75,10 +138,7 @@ python mcp_server.py
 
 ## 📚 Documentation
 
-- **[Installation Guide](docs/INSTALLATION_GUIDE.md)** - Download and install instructions
-- **[Release Notes](docs/RELEASE_NOTES_v0.1.0.md)** - Latest release information
-- **[Release Files Info](docs/RELEASE_FILES_INFO.md)** - Package format details
-- **[Documentation Index](docs/README.md)** - Complete documentation overview
+- **[API Documentation](docs/API_DOCUMENTATION.md)** - Comprehensive API reference and usage guide
 
 ## Installation from PyPI
 
@@ -102,6 +162,12 @@ pip install -r requirements.txt
 
 # Run development server
 python mcp_server.py
+
+# Run tests
+python -m pytest tests/ -v
+
+# Run tests with coverage (if pytest-cov is installed)
+python -m pytest tests/ --cov=src --cov-report=html
 ```
 
 ## Example Analysis
