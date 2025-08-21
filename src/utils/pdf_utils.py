@@ -203,7 +203,7 @@ class PDFUtils:
             
             # Try to get object
             try:
-                obj = reader.get_object((object_number, 0))
+                obj = reader.get_object(object_number)
                 result["found"] = True
                 result["object_info"] = {
                     "type": type(obj).__name__,
@@ -227,10 +227,10 @@ class PDFUtils:
                     
                     result["object_info"]["content_sample"] = safe_content
                 
-            except Exception:
+            except Exception as e:
                 result["found"] = False
-                result["error"] = f"Object {object_number} does not exist or cannot be accessed"
-            
+                result["error"] = f"Object {object_number} does not exist or cannot be accessed: {e}"
+
             return result
             
         except Exception as e:

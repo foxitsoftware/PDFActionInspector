@@ -146,21 +146,102 @@ class TestPDFActionInspector:
     def test_get_pdf_object_information(self):
         """Test PDF object information retrieval"""
         print(f"\n🧪 Testing PDF object information...")
-        # Test with object number 14 (the signature field object)
-        result = self.inspector.get_pdf_object_information(self.test_pdf_path, 14)
         
-        # result should now be a dict, not JSON string
-        assert isinstance(result, dict), f"Expected dict, got {type(result)}"
+        # Test specific object numbers 80 and 81 from test-signature_action.pdf
+        test_objects = [80, 81]
         
-        assert "object_number" in result
-        assert "found" in result
-        assert result["object_number"] == 14
+        for obj_num in test_objects:
+            print(f"   Testing object number {obj_num}...")
+            result = self.inspector.get_pdf_object_information(self.test_pdf_path, obj_num)
+            
+            # Basic structure validation
+            assert isinstance(result, dict), f"Expected dict, got {type(result)}"
+            assert "object_number" in result
+            assert "found" in result
+            assert result["object_number"] == obj_num
+            
+            if result["found"]:
+                assert "object_info" in result
+                obj_info = result["object_info"]
+                
+                # Validate object_info structure
+                assert isinstance(obj_info, dict)
+                
+                # Type field should exist and be a valid PyPDF2 object type
+                assert "type" in obj_info, f"Object {obj_num} missing 'type' field"
+                obj_type = obj_info["type"]
+                assert isinstance(obj_type, str), f"Object {obj_num} type should be string, got {type(obj_type)}"
+                
+                # Validate that it's a reasonable PyPDF2 object type (including undefined/empty objects)
+                valid_types = [
+                    "DecodedStreamObject", "EncodedStreamObject", "DictionaryObject", 
+                    "ArrayObject", "IndirectObject", "NameObject", "TextStringObject",
+                    "NumberObject", "BooleanObject", "NullObject", "StreamObject",
+                    "NoneType"  # For undefined/empty objects
+                ]
+                assert obj_type in valid_types or obj_type.endswith("Object"), \
+                    f"Object {obj_num} has unexpected type: {obj_type}"
+                
+                print(f"     ✅ Object {obj_num} found!")
+                print(f"       Type: {obj_type}")
+                
+                if "keys" in obj_info:
+                    keys = obj_info["keys"]
+                    assert isinstance(keys, list), f"Object {obj_num} keys should be list"
+                    print(f"       Keys ({len(keys)}): {keys[:10]}{'...' if len(keys) > 10 else ''}")
+                    
+                if "size" in obj_info:
+                    size = obj_info["size"]
+                    assert isinstance(size, (int, str)), f"Object {obj_num} size should be int or string"
+                    print(f"       Size: {size} bytes")
+                    
+            else:
+                print(f"     ⚠️  Object {obj_num} not found")
         
+        # Test with large object number to verify handling
+        print(f"   Testing with large object number 99999...")
+        result = self.inspector.get_pdf_object_information(self.test_pdf_path, 99999)
+        assert isinstance(result, dict)
+        assert result["object_number"] == 99999
+        
+        # Note: PyPDF2 may still "find" undefined objects, so we validate structure if found
         if result["found"]:
             assert "object_info" in result
-            print(f"✅ PDF object information test passed")
+            obj_info = result["object_info"]
+            assert isinstance(obj_info, dict)
+            
+            # Apply same type validation as for other objects
+            assert "type" in obj_info, f"Object 99999 missing 'type' field"
+            obj_type = obj_info["type"]
+            assert isinstance(obj_type, str), f"Object 99999 type should be string, got {type(obj_type)}"
+            
+            # Validate that it's a reasonable PyPDF2 object type (including undefined/empty objects)
+            valid_types = [
+                "DecodedStreamObject", "EncodedStreamObject", "DictionaryObject", 
+                "ArrayObject", "IndirectObject", "NameObject", "TextStringObject",
+                "NumberObject", "BooleanObject", "NullObject", "StreamObject",
+                "NoneType"  # For undefined/empty objects
+            ]
+            assert obj_type in valid_types or obj_type.endswith("Object"), \
+                f"Object 99999 has unexpected type: {obj_type}"
+            
+            print(f"     ✅ Object 99999 found (may be undefined/empty)")
+            print(f"       Type: {obj_type}")
+            
+            if "keys" in obj_info:
+                keys = obj_info["keys"]
+                assert isinstance(keys, list), f"Object 99999 keys should be list"
+                print(f"       Keys ({len(keys)}): {keys[:5]}{'...' if len(keys) > 5 else ''}")
+                
+            if "size" in obj_info:
+                size = obj_info["size"]
+                assert isinstance(size, (int, str)), f"Object 99999 size should be int or string"
+                print(f"       Size: {size} bytes")
         else:
-            print(f"⚠️  Object 14 not found in test PDF")
+            print(f"     ✅ Object 99999 not found")
+        print(f"     ✅ Object 99999 test completed")
+        
+        print(f"✅ PDF object information test completed")
     
     def test_get_trailer_object(self):
         """Test PDF trailer object retrieval"""
