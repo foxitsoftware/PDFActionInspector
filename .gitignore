@@ -64,5 +64,8 @@ htmlcov/
 .tmp/
 .temp/
 
+# UV package manager
+uv.lock
+
 # Sample PDFs (exclude from repository)
 sample.pdf

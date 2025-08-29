@@ -3,25 +3,39 @@
 # Include essential files
 include README.md
 include LICENSE
-include CHANGELOG.md
 include requirements.txt
 include pyproject.toml
 
-# Include example files
+# Include documentation
+recursive-include docs *.md
+
+# Include example files (but exclude videos to reduce package size)
 recursive-include examples *.pdf *.md *.txt
+recursive-exclude examples/videos *
 
 # Include source code
-recursive-include src *.py
+recursive-include pdf_action_inspector *.py
 
-# Include configuration files
-include *.py
-include *.yml
-include *.yaml
-
-# Exclude unnecessary files
-exclude *.pyc
+# Exclude development and build files
+exclude build_and_publish.*
+exclude sample.pdf
 exclude .gitignore
+recursive-exclude tests *
+recursive-exclude .pytest_cache *
+recursive-exclude .benchmarks *
+recursive-exclude .vscode *
+recursive-exclude dist *
+recursive-exclude *.egg-info *
+recursive-exclude build *
+recursive-exclude __pycache__ *
+
+# Exclude system files
+exclude *.pyc
 exclude .git*
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]
 recursive-exclude * .DS_Store
+recursive-exclude * Thumbs.db
+recursive-exclude * *.swp
+recursive-exclude * *.swo
+recursive-exclude * *~

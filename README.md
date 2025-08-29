@@ -29,42 +29,63 @@ This separation ensures clean interfaces, better testability, and optimal perfor
 ## Project Structure
 
 ```
-├── mcp_server.py          # Main MCP server entry point
-├── start.py               # Server startup script
-├── src/
-│   ├── core/              # Core PDF processing
-│   │   ├── inspector.py
-│   │   ├── cache_manager.py
-│   │   └── error_handler.py
-│   ├── config/            # Configuration management
-│   │   ├── settings.py
-│   │   └── policies.py
-│   └── utils/             # Utility functions
-│       ├── action_extractor.py
-│       └── pdf_utils.py
+├── pdf_action_inspector/            # Main package directory
+│   ├── __init__.py                 
+│   ├── mcp_server.py               # Main MCP server implementation
+│   ├── core/                       # Core PDF processing
+│   │   ├── __init__.py
+│   │   ├── inspector.py            # PDF analysis engine
+│   │   ├── cache_manager.py        # Caching system
+│   │   └── error_handler.py        # Error handling
+│   ├── config/                     # Configuration management
+│   │   ├── __init__.py
+│   │   ├── settings.py             # Application settings
+│   │   └── policies.py             # Security policies
+│   └── utils/                      # Utility functions
+│       ├── __init__.py
+│       ├── action_extractor.py     # PDF Action extraction
+│       └── pdf_utils.py            # PDF utilities
 ├── examples/
-│   └── pdf_samples/       # Sample PDFs for testing
-├── tests/                 # Test suite
-│   └── test_pytest.py     # Comprehensive test cases
-├── docs/                  # Documentation
-│   └── API_DOCUMENTATION.md  # Complete API reference
-├── requirements.txt       # Dependencies
-├── pyproject.toml        # Package configuration
-├── setup.py              # Setup script
-├── MANIFEST.in           # Package manifest
-├── CHANGELOG.md          # Version history
-├── LICENSE               # MIT License
-└── .gitignore            # Git ignore rules
-├── requirements.txt       # Dependencies
-├── pyproject.toml        # Package configuration
-├── setup.py              # Setup script
-├── MANIFEST.in           # Package manifest
-├── CHANGELOG.md          # Version history
-├── LICENSE               # MIT License
-└── .gitignore            # Git ignore rules
+│   ├── pdf_samples/                # Sample PDFs for testing
+│   └── videos/                     # Demo videos
+├── tests/                          # Test suite
+│   ├── __init__.py
+│   └── test_pytest.py             # Comprehensive test cases
+├── docs/                           # Documentation
+│   ├── README.md
+│   └── API_DOCUMENTATION.md       # Complete API reference
+├── dist/                           # Build artifacts
+│   ├── *.whl                       # Wheel packages
+│   └── *.tar.gz                    # Source distributions
+├── .venv/                          # Virtual environment (uv managed)
+├── pyproject.toml                  # Package configuration & dependencies
+├── requirements.txt                # Legacy pip dependencies
+├── MANIFEST.in                     # Package manifest
+├── LICENSE                         # MIT License
+├── build_and_publish.*             # Build scripts
+└── .gitignore                      # Git ignore rules
 ```
 
 ## Setup
+
+### Option 1: Using uv (Recommended)
+
+```bash
+# Clone and setup project
+git clone https://github.com/foxitsoftware/PDFActionInspector.git
+cd PDFActionInspector
+
+# Install dependencies and create virtual environment
+uv sync
+
+# Run the MCP server
+uv run pdf-action-inspector
+
+# Or run with Python directly
+uv run python pdf_action_inspector/mcp_server.py
+```
+
+### Option 2: Traditional pip Installation
 
 ```bash
 # Install dependencies
@@ -74,17 +95,55 @@ pip install -r requirements.txt
 pip install PyPDF2 fastmcp
 
 # Run the server
-python mcp_server.py
+python pdf_action_inspector/mcp_server.py
+```
+
+### Option 3: Install from PyPI
+
+```bash
+# Install from PyPI (cross-platform wheel package)
+pip install pdf-action-inspector
+
+# Or with uv
+uv pip install pdf-action-inspector
+
+# Run as console script
+pdf-action-inspector
 ```
 
 ## Claude Desktop Config
 
+### Option 1: Using uv (Recommended)
+```json
+{
+  "mcpServers": {
+    "pdf-action-inspector": {
+      "command": "uv",
+      "args": ["run", "pdf-action-inspector"],
+      "cwd": "/absolute/path/to/PDFActionInspector"
+    }
+  }
+}
+```
+
+### Option 2: Using installed package
+```json
+{
+  "mcpServers": {
+    "pdf-action-inspector": {
+      "command": "pdf-action-inspector"
+    }
+  }
+}
+```
+
+### Option 3: Direct Python execution
 ```json
 {
   "mcpServers": {
     "pdf-action-inspector": {
       "command": "python",
-      "args": ["/absolute/path/to/mcp_server.py"]
+      "args": ["/absolute/path/to/pdf_action_inspector/mcp_server.py"]
     }
   }
 }
@@ -95,24 +154,30 @@ python mcp_server.py
 The MCP server provides the following tools for PDF analysis:
 
 ### Core Analysis Tools
-- `analyze_pdf_actions_security(file_path)` - Generate security analysis prompt with extracted Actions data
-- `extract_pdf_actions(file_path)` - Extract raw PDF Actions from all levels (document, page, annotation, field)
-- `get_document_overview(file_path)` - Get comprehensive document structure and metadata
-- `load_all_annotations(file_path)` - Extract all annotations with their associated Actions
+| Tool | Description |
+|------|-------------|
+| `analyze_pdf_actions_security(file_path)` | Generate security analysis prompt with extracted Actions data |
+| `extract_pdf_actions(file_path)` | Extract raw PDF Actions from all levels (document, page, annotation, field) |
+| `get_document_overview(file_path)` | Get comprehensive document structure and metadata |
+| `load_all_annotations(file_path)` | Extract all annotations with their associated Actions |
 
-### Detailed Analysis Tools  
-- `get_fields_by_name(file_path, field_name)` - Find form fields by name with fuzzy matching
-- `get_page_text_content(file_path, page_number)` - Extract text content from specific page
-- `get_pdf_object_information(file_path, object_number)` - Get detailed PDF object information
-- `get_trailer_object(file_path)` - Get PDF trailer dictionary and document structure
-- `load_all_annotations_in_page(file_path, page_index)` - Get annotations for specific page
-- `get_page_information_by_spans(file_path, page_spans)` - Get information for page ranges
-- `get_page_index_by_pdfobjnum(file_path, obj_num)` - Find page containing specific object
+### Detailed Analysis Tools
+| Tool | Description |
+|------|-------------|
+| `get_fields_by_name(file_path, field_name)` | Find form fields by name with fuzzy matching |
+| `get_page_text_content(file_path, page_number)` | Extract text content from specific page |
+| `get_pdf_object_information(file_path, object_number)` | Get detailed PDF object information |
+| `get_trailer_object(file_path)` | Get PDF trailer dictionary and document structure |
+| `load_all_annotations_in_page(file_path, page_index)` | Get annotations for specific page |
+| `get_page_information_by_spans(file_path, page_spans)` | Get information for page ranges |
+| `get_page_index_by_pdfobjnum(file_path, obj_num)` | Find page containing specific object |
 
 ### Cache Management
-- `set_pdf_password(file_path, password)` - Set password for encrypted PDF files
-- `clear_pdf_cache(file_path)` - Clear cache for specific file or all cached files
-- `get_cache_status()` - Get current cache status information
+| Tool | Description |
+|------|-------------|
+| `set_pdf_password(file_path, password)` | Set password for encrypted PDF files |
+| `clear_pdf_cache(file_path)` | Clear cache for specific file or all cached files |
+| `get_cache_status()` | Get current cache status information |
 
 **Architecture:** The MCP tools layer returns JSON strings for external consumption, while the internal Inspector core returns Python dictionaries for better performance and type safety.
 
@@ -140,34 +205,66 @@ extract_pdf_actions("encrypted_document.pdf")
 
 - **[API Documentation](docs/API_DOCUMENTATION.md)** - Comprehensive API reference and usage guide
 
-## Installation from PyPI
-
-```bash
-# Install from PyPI (when published)
-pip install pdf-action-inspector
-
-# Run as console script
-pdf-action-inspector
-```
-
 ## Development Setup
+
+### Option 1: Using uv (Recommended)
 
 ```bash
 # Clone repository
 git clone https://github.com/foxitsoftware/PDFActionInspector.git
 cd PDFActionInspector
 
+# Install dependencies and create virtual environment
+uv sync
+
+# Run development server
+uv run pdf-action-inspector
+# or
+uv run python pdf_action_inspector/mcp_server.py
+
+# Run tests
+uv run python -m pytest tests/ -v
+
+# Run tests with coverage
+uv run python -m pytest tests/ --cov=pdf_action_inspector --cov-report=html
+
+# Add new dependencies
+uv add <package_name>
+
+# Add development dependencies  
+uv add --dev <package_name>
+
+# Build package
+uv build
+
+# Install in editable mode for development
+uv pip install -e .
+```
+
+### Option 2: Traditional pip workflow
+
+```bash
+# Clone repository
+git clone https://github.com/foxitsoftware/PDFActionInspector.git
+cd PDFActionInspector
+
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # Linux/macOS
+# or
+venv\Scripts\activate     # Windows
+
 # Install dependencies
 pip install -r requirements.txt
 
 # Run development server
-python mcp_server.py
+python pdf_action_inspector/mcp_server.py
 
 # Run tests
 python -m pytest tests/ -v
 
 # Run tests with coverage (if pytest-cov is installed)
-python -m pytest tests/ --cov=src --cov-report=html
+python -m pytest tests/ --cov=pdf_action_inspector --cov-report=html
 ```
 
 ## Example Analysis

@@ -9,15 +9,11 @@ import os
 import sys
 from pathlib import Path
 
-# Add project root directory to Python path
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
-
 from fastmcp import FastMCP
-from src.core.inspector import PDFActionInspector
-from src.core.cache_manager import CacheManager
-from src.core.error_handler import ErrorHandler
-from src.config.settings import Settings
+from .core.inspector import PDFActionInspector
+from .core.cache_manager import CacheManager
+from .core.error_handler import ErrorHandler
+from .config.settings import Settings
 
 
 # Initialize MCP application
@@ -406,6 +402,11 @@ def main():
     # Set environment variables (if needed)
     if "PDF_CACHE_TIMEOUT_SECONDS" not in os.environ:
         os.environ["PDF_CACHE_TIMEOUT_SECONDS"] = "120"  # 120 seconds default timeout
+    
+    # Print initialization info for console usage
+    print("Starting PDF Action Inspector MCP Server...")
+    print(f"Cache timeout: {os.environ.get('PDF_CACHE_TIMEOUT_SECONDS', '120')} seconds")
+    print("Server ready for MCP connections...")
     
     mcp.run()
 
