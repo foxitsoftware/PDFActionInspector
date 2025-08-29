@@ -1,6 +1,6 @@
 # PDF Action Inspector
 
-A Model Context Protocol (MCP) server for extracting and analyzing JavaScript Actions from PDF files. PDF Actions can trigger malicious scripts when documents are opened or interacted with, making this tool valuable for security analysis.
+A Model Context Protocol (MCP) server for extracting and analyzing JavaScript Actions from PDF files. This tool provides structured access to PDF Actions data for security analysis and research purposes.
 
 ## Architecture
 
@@ -56,10 +56,11 @@ This separation ensures clean interfaces, better testability, and optimal perfor
 ### For Users (Recommended)
 
 ```bash
-# Install from PyPI
-pip install pdf-action-inspector
+# Quick start with uvx (no installation needed)
+uvx pdf-action-inspector
 
-# Run the MCP server
+# Or install from PyPI
+pip install pdf-action-inspector
 pdf-action-inspector
 ```
 
@@ -81,20 +82,20 @@ python pdf_action_inspector/mcp_server.py
 
 ## Claude Desktop Config
 
-**Recommended configuration (using uv):**
+**Recommended configuration (using uvx):**
 
 ```json
 {
   "mcpServers": {
     "pdf-action-inspector": {
-      "command": "uv",
-      "args": ["run", "pdf-action-inspector"]
+      "command": "uvx",
+      "args": ["pdf-action-inspector"]
     }
   }
 }
 ```
 
-**Alternative (if installed globally):**
+**Alternative (if installed via pip):**
 
 ```json
 {

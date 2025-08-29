@@ -4,12 +4,12 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pdf-action-inspector"
-version = "0.1.0"
+version = "0.1.1"
 authors = [
     {name = "Foxit Software Inc.", email = "security-ml@foxitsoftware.com"},
 ]
 description = "A Model Context Protocol server for extracting and analyzing JavaScript Actions from PDF files"
-readme = "README.md"
+readme = "README_PYPI.md"
 license = {text = "MIT"}
 requires-python = ">=3.10"
 classifiers = [

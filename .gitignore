@@ -67,5 +67,8 @@ htmlcov/
 # UV package manager
 uv.lock
 
+# PyPI configuration (contains sensitive API tokens)
+.pypirc
+
 # Sample PDFs (exclude from repository)
 sample.pdf

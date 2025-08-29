@@ -1,17 +1,10 @@
 # MANIFEST.in for PDF Action Inspector
 
 # Include essential files
-include README.md
+include README_PYPI.md
 include LICENSE
 include requirements.txt
 include pyproject.toml
-
-# Include documentation
-recursive-include docs *.md
-
-# Include example files (but exclude videos to reduce package size)
-recursive-include examples *.pdf *.md *.txt
-recursive-exclude examples/videos *
 
 # Include source code
 recursive-include pdf_action_inspector *.py
