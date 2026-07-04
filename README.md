@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/foxitsoftware-pdfactioninspector-badge.png)](https://mseep.ai/app/foxitsoftware-pdfactioninspector)
+
 # PDF Action Inspector
 
 A Model Context Protocol (MCP) server for extracting and analyzing JavaScript Actions from PDF files. This tool provides structured access to PDF Actions data for security analysis and research purposes.
